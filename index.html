@@ -7,19 +7,31 @@
     <style>
         /* TODO: Make grid look more like Excel */
         table {
-            border-collapse:collapse;
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
         }
 
-        td, th {
+        td,
+        th {
             border: 1px solid black;
             width: 100px;
         }
 
+        /* TODO: make sticky */
+        /* th {
+            position: sticky;
+            top: 0;
+        } */
+
         tr th:first-child,
         tr td:first-child {
             width: 40px;
-            margin: auto;
             text-align: center;
+
+            /* TODO: make sticky */
+            /* position: sticky;
+            left: 0; */
         }
     </style>
 </head>
@@ -27,30 +39,6 @@
 
 <body>
     <!-- TODO: programatically create table in js -->
-    <table>
-        <thead>
-            <tr>
-                <th></th>
-                <th>A</th>
-                <th>B</th>
-                <th>C</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>the</td>
-                <td>quick</td>
-                <td>brown</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>fox</td>
-                <td>jump</td>
-                <td>over</td>
-            </tr>
-        </tbody>
-    </table>
     <script src="src/index.js"></script>
 </body>
 
