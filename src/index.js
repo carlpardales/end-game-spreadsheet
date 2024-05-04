@@ -4,6 +4,20 @@
     row: 100,
   };
 
+  let data = [];
+
+  const generateColumnLabel = columnNumber => {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let label = alphabet[columnNumber % 26];
+    if (columnNumber >= 26) {
+      label =
+        alphabet[Math.floor(columnNumber / 26) - 1] +
+        alphabet[columnNumber % 26];
+    }
+
+    return label;
+  };
+
   const drawHeader = table => {
     const tableHead = document.createElement("thead");
     const headerRow = document.createElement("tr");
@@ -21,16 +35,50 @@
     table.appendChild(tableHead);
   };
 
-  const generateColumnLabel = columnNumber => {
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let label = alphabet[columnNumber % 26];
-    if (columnNumber >= 26) {
-      label =
-        alphabet[Math.floor(columnNumber / 26) - 1] +
-        alphabet[columnNumber % 26];
+  const saveCellValue = (cell, newValue) => {
+    const cellData = {
+      row: cell.parentNode.rowIndex,
+      column: cell.cellIndex,
+      value: newValue,
+    };
+
+    let indexToUpdate = data.findIndex(
+      obj => obj.row === cellData.row && obj.column === cellData.column
+    );
+
+    if (indexToUpdate !== -1) {
+      data[indexToUpdate].value = newValue;
+    } else {
+      data.push(cellData);
     }
 
-    return label;
+    console.log(data);
+  };
+
+  const editCell = cell => {
+    if (cell.hasAttribute("data-clicked")) {
+      return;
+    }
+
+    cell.setAttribute("data-clicked", "true");
+    const input = document.createElement("input");
+    input.value = cell.innerText;
+
+    input.onblur = () => {
+      var parentCell = input.parentElement;
+
+      cell.removeAttribute("data-clicked");
+
+      // Save only if we have a value
+      if (input.value) {
+        saveCellValue(cell, input.value);
+      }
+      parentCell.innerText = input.value;
+    };
+
+    cell.innerHTML = "";
+    cell.append(input);
+    cell.firstElementChild.select();
   };
 
   const drawBody = table => {
@@ -40,9 +88,14 @@
 
       for (let j = 0; j <= dimension.column; j++) {
         const cell = document.createElement("td");
+
         if (j == 0) {
           const cellText = document.createTextNode(i + 1);
           cell.appendChild(cellText);
+        } else {
+          cell.onclick = () => {
+            editCell(cell);
+          };
         }
 
         row.appendChild(cell);
