@@ -50,12 +50,21 @@ const spreadsheetCreator = () => {
 
       // Save only if we have a value
       if (input.value) {
-        const cellData = {
-          row: cell.parentNode.rowIndex,
-          column: cell.cellIndex,
-          value: input.value,
+        const cellId = `${generateColumnLabel(cell.cellIndex - 1)}${
+          cell.parentNode.rowIndex
+        }`;
+
+        const newData = {
+          [cellId]: {
+            row: cell.parentNode.rowIndex,
+            column: cell.cellIndex,
+            value: input.value,
+            formula: "",
+            dependencies: [],
+          },
         };
-        onUpdate(cellData);
+
+        onUpdate(newData);
       }
       parentCell.innerText = input.value;
     };
@@ -111,21 +120,16 @@ const spreadsheetCreator = () => {
     const table = drawSpreadsheet(onCellUpdate);
 
     if (initialData) {
-      // Sort by row and column
-      initialData.sort((a, b) => {
-        if (a.row !== b.row) {
-          return a.row - b.row;
+      for (const key in initialData) {
+        if (initialData.hasOwnProperty(key)) {
+          const entry = initialData[key];
+          const rowIndex = entry.row;
+          const columnIndex = entry.column;
+
+          const cell = table.rows[rowIndex].cells[columnIndex];
+          cell.textContent = entry.value;
         }
-        return a.column - b.column;
-      });
-
-      initialData.forEach(cellData => {
-        const rowIndex = cellData.row;
-        const columnIndex = cellData.column;
-        const cell = table.rows[rowIndex].cells[columnIndex];
-
-        cell.textContent = cellData.value;
-      });
+      }
     }
 
     return table;

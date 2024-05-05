@@ -1,15 +1,14 @@
 (() => {
-  let sheetData = [];
+  let sheetData = {};
 
   const handleCellUpdate = cellData => {
-    let indexToUpdate = sheetData.findIndex(
-      obj => obj.row === cellData.row && obj.column === cellData.column
-    );
-
-    if (indexToUpdate !== -1) {
-      sheetData[indexToUpdate].value = cellData.value;
-    } else {
-      sheetData.push(cellData);
+    // Update sheet with new data
+    for (const key in cellData) {
+      if (sheetData.hasOwnProperty(key)) {
+        sheetData[key] = cellData[key];
+      } else {
+        sheetData[key] = cellData[key];
+      }
     }
 
     console.log(sheetData);
