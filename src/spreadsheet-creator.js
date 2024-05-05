@@ -124,8 +124,33 @@ const spreadsheetCreator = () => {
     return table;
   };
 
+  const redrawSpreadsheet = () => {
+    const table = drawSpreadsheet();
+
+    if (data) {
+      // Sort by row and column
+      data.sort((a, b) => {
+        if (a.row !== b.row) {
+          return a.row - b.row;
+        }
+        return a.column - b.column;
+      });
+
+      data.forEach(cellData => {
+        const rowIndex = cellData.row;
+        const columnIndex = cellData.column;
+        const cell = table.rows[rowIndex].cells[columnIndex];
+
+        cell.textContent = cellData.value;
+      });
+    }
+
+    return table;
+  };
+
   return {
     new: () => drawSpreadsheet(),
+    redraw: () => redrawSpreadsheet(),
   };
 };
 
