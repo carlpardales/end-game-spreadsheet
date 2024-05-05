@@ -41,7 +41,8 @@ const spreadsheetCreator = () => {
 
     cell.setAttribute("data-clicked", "true");
     const input = document.createElement("input");
-    input.value = cell.innerText;
+    const oldValue = cell.innerText;
+    input.value = oldValue;
 
     input.onblur = () => {
       var parentCell = input.parentElement;
@@ -49,7 +50,9 @@ const spreadsheetCreator = () => {
       cell.removeAttribute("data-clicked");
 
       // Save only if we have a value
-      if (input.value) {
+      const newValue = input.value;
+      const hasChanged = oldValue !== newValue;
+      if (hasChanged) {
         const cellId = `${generateColumnLabel(cell.cellIndex - 1)}${
           cell.parentNode.rowIndex
         }`;
@@ -58,7 +61,7 @@ const spreadsheetCreator = () => {
           [cellId]: {
             row: cell.parentNode.rowIndex,
             column: cell.cellIndex,
-            value: input.value,
+            value: newValue,
             formula: "",
             dependencies: [],
           },
@@ -66,7 +69,7 @@ const spreadsheetCreator = () => {
 
         onUpdate(newData);
       }
-      parentCell.innerText = input.value;
+      parentCell.innerText = newValue;
     };
 
     input.onkeydown = event => {
