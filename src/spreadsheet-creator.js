@@ -36,27 +36,7 @@ const spreadsheetCreator = () => {
     table.appendChild(tableHead);
   };
 
-  const saveCellValue = (cell, newValue) => {
-    const cellData = {
-      row: cell.parentNode.rowIndex,
-      column: cell.cellIndex,
-      value: newValue,
-    };
-
-    let indexToUpdate = data.findIndex(
-      obj => obj.row === cellData.row && obj.column === cellData.column
-    );
-
-    if (indexToUpdate !== -1) {
-      data[indexToUpdate].value = newValue;
-    } else {
-      data.push(cellData);
-    }
-
-    console.log(data);
-  };
-
-  const editCell = cell => {
+  const editCell = (cell, onUpdate) => {
     if (cell.hasAttribute("data-clicked")) {
       return;
     }
@@ -72,7 +52,12 @@ const spreadsheetCreator = () => {
 
       // Save only if we have a value
       if (input.value) {
-        saveCellValue(cell, input.value);
+        const cellData = {
+          row: cell.parentNode.rowIndex,
+          column: cell.cellIndex,
+          value: input.value,
+        };
+        onUpdate(cellData);
       }
       parentCell.innerText = input.value;
     };
@@ -90,7 +75,7 @@ const spreadsheetCreator = () => {
     cell.firstElementChild.select();
   };
 
-  const drawBody = table => {
+  const drawBody = (table, onCellUpdate) => {
     const tableBody = document.createElement("tbody");
     for (let i = 0; i < dimension.row; i++) {
       const row = document.createElement("tr");
@@ -103,7 +88,7 @@ const spreadsheetCreator = () => {
           cell.appendChild(cellText);
         } else {
           cell.onclick = () => {
-            editCell(cell);
+            editCell(cell, onCellUpdate);
           };
         }
 
@@ -116,10 +101,10 @@ const spreadsheetCreator = () => {
     table.appendChild(tableBody);
   };
 
-  const drawSpreadsheet = () => {
+  const drawSpreadsheet = onCellUpdate => {
     const table = document.createElement("table");
     drawHeader(table);
-    drawBody(table);
+    drawBody(table, onCellUpdate);
 
     return table;
   };
@@ -149,7 +134,7 @@ const spreadsheetCreator = () => {
   };
 
   return {
-    new: () => drawSpreadsheet(),
+    new: onCellUpdate => drawSpreadsheet(onCellUpdate),
     redraw: () => redrawSpreadsheet(),
   };
 };
