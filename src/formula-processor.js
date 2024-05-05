@@ -28,6 +28,15 @@ const formulaProcessor = () => {
     return tokens;
   };
 
+  const isValidCellId = id => {
+    // TODO: This handles fixed range for now but should changed to accomodate grid  dimension changes
+
+    // Regular expression to match cell references from A1 to CV100
+    const regex = /^([A-C][A-Z]?|CV)([1-9]|[1-9][0-9]|100)$/;
+
+    return regex.test(id);
+  };
+
   const evaluateFormula = (tokens, cellData) => {
     const stack = [];
     const referencedCells = [];
@@ -65,12 +74,13 @@ const formulaProcessor = () => {
         stack.push(result); // Push the result of the subexpression back to the stack
       } else if (["+", "-", "*", "/"].includes(token)) {
         stack.push(token);
-      } else {
-        // Cell reference
+      } else if (isValidCellId(token)) {
         const cellId = token;
         const cellValue = cellData[cellId].value;
         stack.push(parseFloat(cellValue));
         referencedCells.push(cellId);
+      } else {
+        stack.push(token);
       }
     }
 
