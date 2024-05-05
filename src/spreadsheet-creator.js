@@ -35,14 +35,36 @@ const spreadsheetCreator = () => {
   };
 
   const editCell = (cell, onUpdate) => {
+    const getObjectByRowColumn = (row, column) => {
+      const data = window.sheetData;
+      for (const key in data) {
+        if (data[key].row === row && data[key].column === column) {
+          return data[key];
+        }
+      }
+      return null;
+    };
+
     if (cell.hasAttribute("data-clicked")) {
       return;
     }
 
-    cell.setAttribute("data-clicked", "true");
+    // Get formula or value
+    const columnIndex = cell.cellIndex;
+    const rowIndex = cell.parentElement.rowIndex;
+    const cellData = getObjectByRowColumn(rowIndex, columnIndex);
+    const cellFormula = cellData?.formula;
+    const cellValue = cell.innerText || cellData?.value || "";
+    const oldValue = cellFormula || cellValue || "";
+
     const input = document.createElement("input");
-    const oldValue = cell.innerText;
     input.value = oldValue;
+
+    cell.setAttribute("data-clicked", "true ");
+
+    cell.innerHTML = "";
+    cell.append(input);
+    cell.firstElementChild.select();
 
     input.onblur = () => {
       var parentCell = input.parentElement;
@@ -92,7 +114,7 @@ const spreadsheetCreator = () => {
 
         onUpdate(newData);
       } else {
-        parentCell.innerText = newValue;
+        parentCell.innerText = cellValue;
       }
     };
 
@@ -103,10 +125,6 @@ const spreadsheetCreator = () => {
         //TODO: Focus below cell
       }
     };
-
-    cell.innerHTML = "";
-    cell.append(input);
-    cell.firstElementChild.select();
   };
 
   const drawBody = (table, onCellUpdate) => {
