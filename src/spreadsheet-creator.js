@@ -69,11 +69,20 @@ const spreadsheetCreator = () => {
 
         const isFormula = newValue.startsWith("=") && newValue.length > 1;
         if (isFormula) {
-          const value = formula.run(newValue.substring(1), window.sheetData);
+          const result = formula.run(newValue.substring(1), window.sheetData);
           newData[cellId].formula = newValue;
 
-          parentCell.innerText = value;
-          console.log(`Result: ${value}`);
+          parentCell.innerText = result.value;
+
+          // Update window.sheetData and add cellId as dependent for all cells in result.referencedCells
+          // TODO: Need to update dependency when referencing cell updates formula and no longer refer to this cell/s
+          result.referencedCells.forEach(id => {
+            if (window.sheetData.hasOwnProperty(id)) {
+              window.sheetData[id].dependencies.push(cellId);
+            } else {
+              window.sheetData[id] = { dependencies: [cellId] };
+            }
+          });
         } else {
           newData[cellId].value = newValue;
           parentCell.innerText = newValue;

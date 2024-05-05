@@ -30,6 +30,7 @@ const formulaProcessor = () => {
 
   const evaluateFormula = (tokens, cellData) => {
     const stack = [];
+    const referencedCells = [];
 
     // Helper function to perform arithmetic operations
     function applyOperation(operator, operand2, operand1) {
@@ -69,6 +70,7 @@ const formulaProcessor = () => {
         const cellId = token;
         const cellValue = cellData[cellId].value;
         stack.push(parseFloat(cellValue));
+        referencedCells.push(cellId);
       }
     }
 
@@ -82,14 +84,14 @@ const formulaProcessor = () => {
     }
 
     // The final result is the only element remaining in the stack
-    return stack.pop();
+    return { value: stack.pop(), referencedCells: referencedCells };
   };
 
   const runProcessor = (formula, cellData) => {
     const tokens = tokenizeFormula(formula);
-    const value = evaluateFormula(tokens, cellData);
+    const result = evaluateFormula(tokens, cellData);
 
-    return value;
+    return result;
   };
 
   return {
