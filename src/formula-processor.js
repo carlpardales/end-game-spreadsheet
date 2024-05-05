@@ -76,8 +76,20 @@ const formulaProcessor = () => {
         stack.push(token);
       } else if (isValidCellId(token)) {
         const cellId = token;
-        const cellValue = cellData[cellId].value;
-        stack.push(parseFloat(cellValue));
+        const cellData = window.sheetData[cellId];
+        const cellFormula = cellData.formula;
+        const cellValue = cellData.value;
+
+        if (cellFormula) {
+          const result = runProcessor(
+            cellFormula.substring(1),
+            window.sheetData
+          );
+          stack.push(parseFloat(result.value));
+        } else {
+          stack.push(parseFloat(cellValue));
+        }
+
         referencedCells.push(cellId);
       } else {
         stack.push(token);

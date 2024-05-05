@@ -2,17 +2,26 @@
   // Saving to window for now. Need better data persistency
   window.sheetData = {};
 
-  const handleCellUpdate = cellData => {
+  const updateDependentCells = dependents => {
+    dependents?.forEach(id => {
+      spreadsheet.refreshCell(window.sheetData[id], updateDependentCells);
+    });
+  };
+
+  const handleCellUpdate = newData => {
     // Update sheet with new data
-    for (const key in cellData) {
+    for (const key in newData) {
       if (window.sheetData.hasOwnProperty(key)) {
-        Object.assign(window.sheetData[key], cellData[key]);
+        Object.assign(window.sheetData[key], newData[key]);
       } else {
-        window.sheetData[key] = cellData[key];
+        window.sheetData[key] = newData[key];
       }
     }
 
-    console.log(window.sheetData);
+    const cellId = Object.keys(newData)[0];
+    const cellData = window.sheetData[cellId];
+    const dependents = cellData.dependencies;
+    updateDependentCells(dependents);
   };
 
   const addRefreshButton = () => {

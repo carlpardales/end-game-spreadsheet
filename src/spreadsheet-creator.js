@@ -162,10 +162,27 @@ const spreadsheetCreator = () => {
     return table;
   };
 
+  const handleCellRefresh = (cellData, updateDependentCells) => {
+    const container = document.getElementById("spreadsheetContainer");
+    const table = container.querySelector("table");
+    const cell = table.rows[cellData.row].cells[cellData.column];
+
+    const cellFormula = cellData.formula;
+    if (cellFormula) {
+      const result = formula.run(cellFormula.substring(1), window.sheetData);
+
+      cell.innerText = result.value;
+    }
+
+    updateDependentCells(cellData.dependencies);
+  };
+
   return {
     new: onCellUpdate => drawSpreadsheet(onCellUpdate),
     newWithData: (initialData, onCellUpdate) =>
       drawSpreadsheetWithData(initialData, onCellUpdate),
+    refreshCell: (cellData, updateDependentCells) =>
+      handleCellRefresh(cellData, updateDependentCells),
   };
 };
 
