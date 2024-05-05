@@ -61,15 +61,28 @@ const spreadsheetCreator = () => {
           [cellId]: {
             row: cell.parentNode.rowIndex,
             column: cell.cellIndex,
-            value: newValue,
+            value: "",
             formula: "",
             dependencies: [],
           },
         };
 
+        const isFormula = newValue.startsWith("=") && newValue.length > 1;
+        if (isFormula) {
+          const value = formula.run(newValue.substring(1), window.sheetData);
+          newData[cellId].formula = newValue;
+
+          parentCell.innerText = value;
+          console.log(`Result: ${value}`);
+        } else {
+          newData[cellId].value = newValue;
+          parentCell.innerText = newValue;
+        }
+
         onUpdate(newData);
+      } else {
+        parentCell.innerText = newValue;
       }
-      parentCell.innerText = newValue;
     };
 
     input.onkeydown = event => {

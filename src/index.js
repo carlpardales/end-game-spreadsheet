@@ -1,17 +1,18 @@
 (() => {
-  let sheetData = {};
+  // Saving to window for now. Need better data persistency
+  window.sheetData = {};
 
   const handleCellUpdate = cellData => {
     // Update sheet with new data
     for (const key in cellData) {
-      if (sheetData.hasOwnProperty(key)) {
-        sheetData[key] = cellData[key];
+      if (window.sheetData.hasOwnProperty(key)) {
+        window.sheetData[key] = cellData[key];
       } else {
-        sheetData[key] = cellData[key];
+        window.sheetData[key] = cellData[key];
       }
     }
 
-    console.log(sheetData);
+    console.log(window.sheetData);
   };
 
   const addRefreshButton = () => {
@@ -21,7 +22,7 @@
       );
       spreadsheetContainer.innerHTML = "";
       spreadsheetContainer.append(
-        spreadsheet.newWithData(sheetData, handleCellUpdate)
+        spreadsheet.newWithData(window.sheetData, handleCellUpdate)
       );
     };
 
