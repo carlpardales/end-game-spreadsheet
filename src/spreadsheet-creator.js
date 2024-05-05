@@ -77,6 +77,14 @@ const spreadsheetCreator = () => {
       parentCell.innerText = input.value;
     };
 
+    input.onkeydown = event => {
+      if (event.key == "Enter") {
+        input.blur();
+
+        //TODO: Focus below cell
+      }
+    };
+
     cell.innerHTML = "";
     cell.append(input);
     cell.firstElementChild.select();
