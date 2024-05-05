@@ -63,7 +63,6 @@ const spreadsheetCreator = () => {
             column: cell.cellIndex,
             value: "",
             formula: "",
-            dependencies: [],
           },
         };
 
@@ -78,6 +77,9 @@ const spreadsheetCreator = () => {
           // TODO: Need to update dependency when referencing cell updates formula and no longer refer to this cell/s
           result.referencedCells.forEach(id => {
             if (window.sheetData.hasOwnProperty(id)) {
+              if (!window.sheetData[id].dependencies) {
+                window.sheetData[id].dependencies = [];
+              }
               window.sheetData[id].dependencies.push(cellId);
             } else {
               window.sheetData[id] = { dependencies: [cellId] };

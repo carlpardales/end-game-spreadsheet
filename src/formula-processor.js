@@ -32,7 +32,7 @@ const formulaProcessor = () => {
     // TODO: This handles fixed range for now but should changed to accomodate grid  dimension changes
 
     // Regular expression to match cell references from A1 to CV100
-    const regex = /^([A-C][A-Z]?|CV)([1-9]|[1-9][0-9]|100)$/;
+    const regex = /^[A-Z]{1,2}(?:100|[1-9][0-9]?)?$/;
 
     return regex.test(id);
   };
@@ -57,7 +57,7 @@ const formulaProcessor = () => {
       }
     }
 
-    //TODO: Apply functions like  ["SUM", "AVE", "MAX", "MIN", "COUNT"];
+    //TODO: Perform functions like  ["SUM", "AVE", "MAX", "MIN", "COUNT"];
 
     // Iterate through tokens and evaluate the expression
     for (let i = 0; i < tokens.length; i++) {

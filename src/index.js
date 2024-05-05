@@ -6,7 +6,7 @@
     // Update sheet with new data
     for (const key in cellData) {
       if (window.sheetData.hasOwnProperty(key)) {
-        window.sheetData[key] = cellData[key];
+        Object.assign(window.sheetData[key], cellData[key]);
       } else {
         window.sheetData[key] = cellData[key];
       }
