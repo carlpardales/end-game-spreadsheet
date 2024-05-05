@@ -3,8 +3,6 @@ const dimension = {
   row: 100,
 };
 
-let data = [];
-
 // Expect zero-based index
 const spreadsheetCreator = () => {
   const generateColumnLabel = columnNumber => {
@@ -109,19 +107,19 @@ const spreadsheetCreator = () => {
     return table;
   };
 
-  const redrawSpreadsheet = () => {
-    const table = drawSpreadsheet();
+  const drawSpreadsheetWithData = (initialData, onCellUpdate) => {
+    const table = drawSpreadsheet(onCellUpdate);
 
-    if (data) {
+    if (initialData) {
       // Sort by row and column
-      data.sort((a, b) => {
+      initialData.sort((a, b) => {
         if (a.row !== b.row) {
           return a.row - b.row;
         }
         return a.column - b.column;
       });
 
-      data.forEach(cellData => {
+      initialData.forEach(cellData => {
         const rowIndex = cellData.row;
         const columnIndex = cellData.column;
         const cell = table.rows[rowIndex].cells[columnIndex];
@@ -135,7 +133,8 @@ const spreadsheetCreator = () => {
 
   return {
     new: onCellUpdate => drawSpreadsheet(onCellUpdate),
-    redraw: () => redrawSpreadsheet(),
+    newWithData: (initialData, onCellUpdate) =>
+      drawSpreadsheetWithData(initialData, onCellUpdate),
   };
 };
 

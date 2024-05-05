@@ -21,7 +21,9 @@
         "spreadsheetContainer"
       );
       spreadsheetContainer.innerHTML = "";
-      spreadsheetContainer.append(spreadsheet.redraw());
+      spreadsheetContainer.append(
+        spreadsheet.newWithData(sheetData, handleCellUpdate)
+      );
     };
 
     const refreshButton = document.getElementById("refresh");
