@@ -146,6 +146,16 @@ const spreadsheetCreator = () => {
   const drawSpreadsheetWithData = (initialData, onCellUpdate) => {
     const table = drawSpreadsheet(onCellUpdate);
 
+    // If there is a formula, calculate value and cascade to dependents.
+    // Defaults to the value propoerty.
+    const getValue = cellData => {
+      const cellFormula = cellData.formula;
+
+      return cellFormula
+        ? formula.run(cellFormula.substring(1), window.sheetData).value
+        : cellData.value;
+    };
+
     if (initialData) {
       for (const key in initialData) {
         if (initialData.hasOwnProperty(key)) {
@@ -154,7 +164,7 @@ const spreadsheetCreator = () => {
           const columnIndex = entry.column;
 
           const cell = table.rows[rowIndex].cells[columnIndex];
-          cell.textContent = entry.value;
+          cell.textContent = getValue(entry);
         }
       }
     }
