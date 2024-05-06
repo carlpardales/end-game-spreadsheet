@@ -14,19 +14,25 @@
     };
   };
 
-  const handleItalize = () => {
-    // Using saved cell and row indices, query table to get the cell.
-    // Programmatically set text font style to 'italic'
-  };
+  const toolbar = () => {
+    const boldButton = document.getElementById("bold");
+    boldButton.onclick = () => {
+      // Using saved cell and row indices, query table to get the cell.
+      // Programmatically set text font style to 'italic'
+      // Save formatting in cellData
+    };
 
-  const handleBold = () => {
-    // Using saved cell and row indices, query table to get the cell.
-    // Programmatically set fontWeight = "bold"
-  };
+    const italiseButton = document.getElementById("italics");
+    italiseButton.onclick = () => {
+      // Using saved cell and row indices, query table to get the cell.
+      // Programmatically set text font style to 'italic'
+    };
 
-  const handleUndelrine = () => {
-    // Using saved cell and row indices, query table to get the cell.
-    // Programmatically set text decoration = 'underline'
+    const underlineButton = document.getElementById("underline");
+    underlineButton.onclick = () => {
+      // Using saved cell and row indices, query table to get the cell.
+      // Programmatically set text decoration = 'underline'
+    };
   };
 
   const drawSpreadsheet = () => {
@@ -34,6 +40,7 @@
     container.append(spreadsheet.new());
   };
 
+  toolbar();
   addRefreshButton();
   drawSpreadsheet();
 })();

@@ -43,6 +43,11 @@
             margin-bottom: 10px;
         }
 
+        #toolbar {
+            display: flex;
+            justify-content: space-between;
+        }
+
         /* TODO:  Fix button alignment*/
         #toolbar ul {
             list-style-type: none;
@@ -52,6 +57,7 @@
         #toolbar li {
             display: inline-block;
             margin-right: 10px;
+            font-size: 10px;
         }
 
         #toolbar button {
@@ -63,6 +69,7 @@
 
         #toolbar div {
             text-align: center;
+            display: inline-block;
         }
 
         #toolbar span {
@@ -109,30 +116,33 @@
 
 <body>
     <div id="toolbar">
-        <ul>
-            <li>
-    
-                <button id="refresh">Refresh</button>
-            </li>
-            <li>
-                <div>
-                    <button type="">B</button>
-                    <span>Bold</span>
-                </div>
-            <li>
-            <li>
-                <div>
-                    <button>I</button>
-                    <span>Italics</span>
-                </div>
-            <li>
-            <li>
-                <div>
-                    <button>U</button>
-                    <span>Underline</span>
-                </div>
-            <li>
-        </ul>
+        <div>
+            <ul>
+                <li>
+                    <div>
+                        <button id="bold" type="">B</button>
+                        <span>Bold</span>
+                        </div>
+                </li>
+                <li>
+                    <div>
+                        <button id="italics">I</button>
+                        <span>Italics</span>
+                        </div>
+                </li>
+                <li>
+                    <div>
+                        <button id="underline">U</button>
+                        <span>Underline</span>
+                        </div>
+                        <li>
+                            </ul>
+        </div>
+        <div>
+            <ul>
+                <li><button id="refresh">Refresh</button></li>
+            </ul>
+        </div>
     </div>
     </div>
     <div id="spreadsheetContainer"></div>
