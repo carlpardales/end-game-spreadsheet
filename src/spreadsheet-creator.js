@@ -34,17 +34,7 @@ const spreadsheetCreator = () => {
     table.appendChild(tableHead);
   };
 
-  const editCell = (cell, onUpdate) => {
-    const getObjectByRowColumn = (row, column) => {
-      const data = window.sheetData;
-      for (const key in data) {
-        if (data[key].row === row && data[key].column === column) {
-          return data[key];
-        }
-      }
-      return null;
-    };
-
+  const editCell = cell => {
     if (cell.hasAttribute("data-clicked")) {
       return;
     }
@@ -52,7 +42,7 @@ const spreadsheetCreator = () => {
     // Get formula or value
     const columnIndex = cell.cellIndex;
     const rowIndex = cell.parentElement.rowIndex;
-    const cellData = getObjectByRowColumn(rowIndex, columnIndex);
+    const cellData = spreadsheetData.readCell(rowIndex, columnIndex);
     const cellFormula = cellData?.formula;
     const cellValue = cell.innerText || cellData?.value || "";
     const oldValue = cellFormula || cellValue || "";
@@ -90,29 +80,20 @@ const spreadsheetCreator = () => {
 
         const isFormula = newValue.startsWith("=") && newValue.length > 1;
         if (isFormula) {
-          const result = formula.run(newValue.substring(1), window.sheetData);
+          const result = formula.run(newValue.substring(1));
           newData[cellId].formula = newValue;
 
           parentCell.innerText = result.value;
 
-          // Update window.sheetData and add cellId as dependent for all cells in result.referencedCells
+          // Update spreadsheetData and add cellId as dependent for all cells in result.referencedCells
           // TODO: Need to update dependency when referencing cell updates formula and no longer refer to this cell/s
-          result.referencedCells.forEach(id => {
-            if (window.sheetData.hasOwnProperty(id)) {
-              if (!window.sheetData[id].dependencies) {
-                window.sheetData[id].dependencies = [];
-              }
-              window.sheetData[id].dependencies.push(cellId);
-            } else {
-              window.sheetData[id] = { dependencies: [cellId] };
-            }
-          });
+          spreadsheetData.update(result.referencedCells, cellId);
         } else {
           newData[cellId].value = newValue;
           parentCell.innerText = newValue;
         }
 
-        onUpdate(newData);
+        spreadsheetData.upsert(newData);
       } else {
         parentCell.innerText = cellValue;
       }
@@ -127,7 +108,7 @@ const spreadsheetCreator = () => {
     };
   };
 
-  const drawBody = (table, onCellUpdate) => {
+  const drawBody = table => {
     const tableBody = document.createElement("tbody");
     for (let i = 0; i < dimension.row; i++) {
       const row = document.createElement("tr");
@@ -140,7 +121,7 @@ const spreadsheetCreator = () => {
           cell.appendChild(cellText);
         } else {
           cell.onclick = () => {
-            editCell(cell, onCellUpdate);
+            editCell(cell);
           };
         }
 
@@ -153,16 +134,16 @@ const spreadsheetCreator = () => {
     table.appendChild(tableBody);
   };
 
-  const drawSpreadsheet = onCellUpdate => {
+  const drawSpreadsheet = () => {
     const table = document.createElement("table");
     drawHeader(table);
-    drawBody(table, onCellUpdate);
+    drawBody(table);
 
     return table;
   };
 
-  const drawSpreadsheetWithData = (initialData, onCellUpdate) => {
-    const table = drawSpreadsheet(onCellUpdate);
+  const drawSpreadsheetWithData = () => {
+    const table = drawSpreadsheet();
 
     // If there is a formula, calculate value and cascade to dependents.
     // Defaults to the value propoerty.
@@ -170,10 +151,11 @@ const spreadsheetCreator = () => {
       const cellFormula = cellData.formula;
 
       return cellFormula
-        ? formula.run(cellFormula.substring(1), window.sheetData).value
+        ? formula.run(cellFormula.substring(1)).value
         : cellData.value;
     };
 
+    const initialData = spreadsheetData.read();
     if (initialData) {
       for (const key in initialData) {
         if (initialData.hasOwnProperty(key)) {
@@ -197,7 +179,7 @@ const spreadsheetCreator = () => {
 
     const cellFormula = cellData.formula;
     if (cellFormula) {
-      const result = formula.run(cellFormula.substring(1), window.sheetData);
+      const result = formula.run(cellFormula.substring(1));
 
       cell.innerText = result.value;
     }
@@ -206,9 +188,8 @@ const spreadsheetCreator = () => {
   };
 
   return {
-    new: onCellUpdate => drawSpreadsheet(onCellUpdate),
-    newWithData: (initialData, onCellUpdate) =>
-      drawSpreadsheetWithData(initialData, onCellUpdate),
+    new: () => drawSpreadsheet(),
+    newWithData: () => drawSpreadsheetWithData(),
     refreshCell: (cellData, updateDependentCells) =>
       handleCellRefresh(cellData, updateDependentCells),
   };

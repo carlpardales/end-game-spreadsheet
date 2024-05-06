@@ -56,12 +56,12 @@ const formulaProcessor = () => {
           throw new Error("Invalid operator: " + operator);
       }
     }
-    
+
     const getValue = cellData => {
       const cellFormula = cellData.formula;
 
       return cellFormula
-        ? formula.run(cellFormula.substring(1), window.sheetData).value
+        ? formula.run(cellFormula.substring(1)).value
         : cellData.value;
     };
 
@@ -78,7 +78,8 @@ const formulaProcessor = () => {
       for (let i = startRowIndex; i <= endRowIndex; i++) {
         for (let j = startColIndex; j <= endColIndex; j++) {
           const cellId = indexToColumn(j) + i;
-          const cellValue = window.sheetData[cellId]?.value;
+          const sheetData = spreadsheetData.read();
+          const cellValue = sheetData[cellId]?.value;
           if (cellValue !== undefined && cellValue !== "") {
             cellValues.push(parseFloat(cellValue));
             referencedCells.push(cellId);
@@ -137,7 +138,8 @@ const formulaProcessor = () => {
         while (operand !== "(") {
           if (isValidCellId(operand)) {
             // Check if the operand is a single cell reference
-            operands.push(parseFloat(window.sheetData[operand]?.value || 0));
+            const sheetData = spreadsheetData.read();
+            operands.push(parseFloat(sheetData[operand]?.value || 0));
           } else if (/^[A-Z]+\d+:[A-Z]+\d+$/.test(operand)) {
             // Check if the operand is a range (e.g., A1:A3)
             let valueRange = evaluateRange(operand);
@@ -156,15 +158,13 @@ const formulaProcessor = () => {
         const cellId = token;
         // TODO: Formula breaks when cell is empty. Sort out and make sure empty cell
         // is ignored when processing formula. reprocesss formula if breaking cell no longer empty
-        const cellData = window.sheetData[cellId];
+        const sheetData = spreadsheetData.read();
+        const cellData = sheetData[cellId];
         const cellFormula = cellData?.formula;
         const cellValue = cellData?.value || "";
 
         if (cellFormula) {
-          const result = runProcessor(
-            cellFormula.substring(1),
-            window.sheetData
-          );
+          const result = runProcessor(cellFormula.substring(1));
           stack.push(parseFloat(result.value));
         } else {
           stack.push(parseFloat(cellValue));
@@ -189,7 +189,8 @@ const formulaProcessor = () => {
     return { value: stack.pop(), referencedCells: referencedCells };
   };
 
-  const runProcessor = (formula, cellData) => {
+  const runProcessor = formula => {
+    const cellData = spreadsheetData.read();
     const tokens = tokenizeFormula(formula);
     const result = evaluateFormula(tokens, cellData);
 
@@ -197,7 +198,7 @@ const formulaProcessor = () => {
   };
 
   return {
-    run: (formula, cellData) => runProcessor(formula, cellData),
+    run: formula => runProcessor(formula),
   };
 };
 
