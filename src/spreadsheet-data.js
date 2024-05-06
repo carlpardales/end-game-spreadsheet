@@ -20,15 +20,23 @@ const spreadsheetData = (() => {
     return null;
   };
 
-  const handleUpdate = (referencedCells, cellId) => {
-    referencedCells.forEach(id => {
-      if (data.hasOwnProperty(id)) {
-        if (!data[id].dependencies) {
-          data[id].dependencies = [];
+  const readCellById = id => {
+    return data[id];
+  };
+
+  const handleReadCellValueById = id => {
+    return data[id]?.value;
+  };
+
+  const handleUpdate = (referencedCells, id) => {
+    referencedCells.forEach(refId => {
+      if (data.hasOwnProperty(refId)) {
+        if (!data[refId].dependencies) {
+          data[refId].dependencies = [];
         }
-        data[id].dependencies.push(cellId);
+        data[refId].dependencies.push(id);
       } else {
-        data[id] = { dependencies: [cellId] };
+        data[refId] = { dependencies: [id] };
       }
     });
   };
@@ -51,7 +59,9 @@ const spreadsheetData = (() => {
   return {
     read: () => handleRead(),
     readCell: (row, column) => handleReadCell(row, column),
-    update: (referencedCells, cellId) => handleUpdate(referencedCells, cellId),
+    readCellById: id => readCellById(id),
+    readCellValueById: id => handleReadCellValueById(id),
+    update: (referencedCells, id) => handleUpdate(referencedCells, id),
     upsert: cell => handleUpsert(cell),
   };
 })();

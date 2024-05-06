@@ -37,7 +37,7 @@ const formulaProcessor = () => {
     return regex.test(id);
   };
 
-  const evaluateFormula = (tokens, cellData) => {
+  const evaluateFormula = tokens => {
     const stack = [];
     const referencedCells = [];
 
@@ -78,8 +78,7 @@ const formulaProcessor = () => {
       for (let i = startRowIndex; i <= endRowIndex; i++) {
         for (let j = startColIndex; j <= endColIndex; j++) {
           const cellId = indexToColumn(j) + i;
-          const sheetData = spreadsheetData.read();
-          const cellValue = sheetData[cellId]?.value;
+          const cellValue = spreadsheetData.readCellValueById(cellId);
           if (cellValue !== undefined && cellValue !== "") {
             cellValues.push(parseFloat(cellValue));
             referencedCells.push(cellId);
@@ -138,8 +137,8 @@ const formulaProcessor = () => {
         while (operand !== "(") {
           if (isValidCellId(operand)) {
             // Check if the operand is a single cell reference
-            const sheetData = spreadsheetData.read();
-            operands.push(parseFloat(sheetData[operand]?.value || 0));
+            var cellValue = spreadsheetData.readCellValueById(operand);
+            operands.push(parseFloat(cellValue || 0));
           } else if (/^[A-Z]+\d+:[A-Z]+\d+$/.test(operand)) {
             // Check if the operand is a range (e.g., A1:A3)
             let valueRange = evaluateRange(operand);
@@ -158,8 +157,7 @@ const formulaProcessor = () => {
         const cellId = token;
         // TODO: Formula breaks when cell is empty. Sort out and make sure empty cell
         // is ignored when processing formula. reprocesss formula if breaking cell no longer empty
-        const sheetData = spreadsheetData.read();
-        const cellData = sheetData[cellId];
+        const cellData = spreadsheetData.readCellById(cellId);
         const cellFormula = cellData?.formula;
         const cellValue = cellData?.value || "";
 
@@ -190,9 +188,8 @@ const formulaProcessor = () => {
   };
 
   const runProcessor = formula => {
-    const cellData = spreadsheetData.read();
     const tokens = tokenizeFormula(formula);
-    const result = evaluateFormula(tokens, cellData);
+    const result = evaluateFormula(tokens);
 
     return result;
   };
