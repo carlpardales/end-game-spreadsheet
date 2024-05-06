@@ -42,11 +42,99 @@
         button {
             margin-bottom: 10px;
         }
+
+        /* TODO:  Fix button alignment*/
+        #toolbar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #toolbar li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        #toolbar button {
+            display: block;
+            width: 100px;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+
+        #toolbar div {
+            text-align: center;
+        }
+
+        #toolbar span {
+            display: block;
+        }
+
+        #toolbar li {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        #toolbar button {
+            display: block;
+            width: 30px;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+
+        #toolbar div {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        #toolbar span {
+            display: block;
+        }
+
+        #toolbar #refresh {
+            width: 100px;
+            height: 40px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        #toolbar #refresh:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
 <body>
-    <div><button id="refresh">Refresh</button></div>
+    <div id="toolbar">
+        <ul>
+            <li>
+    
+                <button id="refresh">Refresh</button>
+            </li>
+            <li>
+                <div>
+                    <button type="">B</button>
+                    <span>Bold</span>
+                </div>
+            <li>
+            <li>
+                <div>
+                    <button>I</button>
+                    <span>Italics</span>
+                </div>
+            <li>
+            <li>
+                <div>
+                    <button>U</button>
+                    <span>Underline</span>
+                </div>
+            <li>
+        </ul>
+    </div>
+    </div>
     <div id="spreadsheetContainer"></div>
     <script src="src/formula-processor.js"></script>
     <script src="src/spreadsheet-creator.js"></script>
