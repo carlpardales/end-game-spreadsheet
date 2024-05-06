@@ -57,7 +57,70 @@ const formulaProcessor = () => {
       }
     }
 
-    //TODO: Perform functions like  ["SUM", "AVE", "MAX", "MIN", "COUNT"];
+    function evaluateRange(range) {
+      const [startCell, endCell] = range.split(":");
+      const [startCol, startRow] = startCell.match(/[A-Z]+|\d+/g);
+      const [endCol, endRow] = endCell.match(/[A-Z]+|\d+/g);
+      const startRowIndex = parseInt(startRow, 10);
+      const endRowIndex = parseInt(endRow, 10);
+      const startColIndex = columnToIndex(startCol);
+      const endColIndex = columnToIndex(endCol);
+
+      let sum = 0;
+      for (let i = startRowIndex; i <= endRowIndex; i++) {
+        for (let j = startColIndex; j <= endColIndex; j++) {
+          const cellId = indexToColumn(j) + i;
+          const cellValue = window.sheetData[cellId]?.value;
+          if (cellValue !== undefined && cellValue !== "") {
+            sum += parseFloat(cellValue);
+            referencedCells.push(cellId);
+          }
+        }
+      }
+      return sum;
+    }
+
+    // Function to convert column letter to index (A=0, B=1, ..., Z=25)
+    function columnToIndex(column) {
+      let index = 0;
+      for (let i = 0; i < column.length; i++) {
+        index = index * 26 + (column.charCodeAt(i) - 65 + 1);
+      }
+      return index - 1;
+    }
+
+    // Function to convert index to column letter (0=A, 1=B, ..., 25=Z)
+    function indexToColumn(index) {
+      let column = "";
+      while (index >= 0) {
+        column = String.fromCharCode((index % 26) + 65) + column;
+        index = Math.floor(index / 26) - 1;
+      }
+      return column;
+    }
+
+    // Function to perform common Excel functions
+    function evaluateFunction(func, operands) {
+      switch (func.toUpperCase()) {
+        case "SUM":
+          // Check if the operand is a range (e.g., A1:A3)
+          if (/^[A-Z]+\d+:[A-Z]+\d+$/.test(operands[0])) {
+            result = evaluateRange(operands[0]);
+          } else {
+            result = operands.reduce((acc, val) => acc + val, 0);
+          }
+        case "AVE":
+          return operands.reduce((acc, val) => acc + val, 0) / operands.length;
+        case "MAX":
+          return Math.max(...operands);
+        case "MIN":
+          return Math.min(...operands);
+        case "COUNT":
+          return operands.length;
+        default:
+          throw new Error("Invalid function: " + func);
+      }
+    }
 
     // Iterate through tokens and evaluate the expression
     for (let i = 0; i < tokens.length; i++) {
@@ -66,19 +129,32 @@ const formulaProcessor = () => {
       if (token === "(") {
         stack.push(token);
       } else if (token === ")") {
-        const operand2 = parseFloat(stack.pop());
-        const operator = stack.pop(); // Discard opening parenthesis
-        const operand1 = parseFloat(stack.pop());
-
-        const result = applyOperation(operator, operand2, operand1);
-        stack.push(result); // Push the result of the subexpression back to the stack
+        const operands = [];
+        let operand = stack.pop();
+        while (operand !== "(") {
+          if (isValidCellId(operand)) {
+            // Check if the operand is a single cell reference
+            operands.push(parseFloat(window.sheetData[operand]?.value || 0));
+          } else if (/^[A-Z]+\d+:[A-Z]+\d+$/.test(operand)) {
+            // Check if the operand is a range (e.g., A1:A3)
+            operands.push(evaluateRange(operand));
+          } else {
+            throw new Error("Invalid operand: " + operand);
+          }
+          operand = stack.pop();
+        }
+        const func = stack.pop();
+        const result = evaluateFunction(func, operands);
+        stack.push(result);
       } else if (["+", "-", "*", "/"].includes(token)) {
         stack.push(token);
       } else if (isValidCellId(token)) {
         const cellId = token;
+        // TODO: Formula breaks when cell is empty. Sort out and make sure empty cell
+        // is ignored when processing formula. reprocesss formula if breaking cell no longer empty
         const cellData = window.sheetData[cellId];
-        const cellFormula = cellData.formula;
-        const cellValue = cellData.value;
+        const cellFormula = cellData?.formula;
+        const cellValue = cellData?.value || "";
 
         if (cellFormula) {
           const result = runProcessor(
