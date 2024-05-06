@@ -56,6 +56,14 @@ const formulaProcessor = () => {
           throw new Error("Invalid operator: " + operator);
       }
     }
+    
+    const getValue = cellData => {
+      const cellFormula = cellData.formula;
+
+      return cellFormula
+        ? formula.run(cellFormula.substring(1), window.sheetData).value
+        : cellData.value;
+    };
 
     function evaluateRange(range) {
       const [startCell, endCell] = range.split(":");
@@ -65,19 +73,19 @@ const formulaProcessor = () => {
       const endRowIndex = parseInt(endRow, 10);
       const startColIndex = columnToIndex(startCol);
       const endColIndex = columnToIndex(endCol);
+      let cellValues = [];
 
-      let sum = 0;
       for (let i = startRowIndex; i <= endRowIndex; i++) {
         for (let j = startColIndex; j <= endColIndex; j++) {
           const cellId = indexToColumn(j) + i;
           const cellValue = window.sheetData[cellId]?.value;
           if (cellValue !== undefined && cellValue !== "") {
-            sum += parseFloat(cellValue);
+            cellValues.push(parseFloat(cellValue));
             referencedCells.push(cellId);
           }
         }
       }
-      return sum;
+      return cellValues;
     }
 
     // Function to convert column letter to index (A=0, B=1, ..., Z=25)
@@ -103,12 +111,7 @@ const formulaProcessor = () => {
     function evaluateFunction(func, operands) {
       switch (func.toUpperCase()) {
         case "SUM":
-          // Check if the operand is a range (e.g., A1:A3)
-          if (/^[A-Z]+\d+:[A-Z]+\d+$/.test(operands[0])) {
-            result = evaluateRange(operands[0]);
-          } else {
-            result = operands.reduce((acc, val) => acc + val, 0);
-          }
+          return operands.reduce((acc, val) => acc + val, 0);
         case "AVE":
           return operands.reduce((acc, val) => acc + val, 0) / operands.length;
         case "MAX":
@@ -137,7 +140,8 @@ const formulaProcessor = () => {
             operands.push(parseFloat(window.sheetData[operand]?.value || 0));
           } else if (/^[A-Z]+\d+:[A-Z]+\d+$/.test(operand)) {
             // Check if the operand is a range (e.g., A1:A3)
-            operands.push(evaluateRange(operand));
+            let valueRange = evaluateRange(operand);
+            operands.push(...valueRange);
           } else {
             throw new Error("Invalid operand: " + operand);
           }
